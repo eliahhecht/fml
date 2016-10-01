@@ -1,14 +1,23 @@
 var mtgJson = require('./mtgjson')
 var _ = require('lodash')
+var store = require('./store')
 
-var loadCardsOwnedByPlayer = function(memberId) {
-  // mocked for now
-  return [
-    { name: "Shambling Vent", status: "active" },
-    { name: "Smuggler's Copter", status: "active" },
-    { name: "Chandra, Pyrogenius", status: "bench" },
-    { name: "Bring to Light", status: "active" }
-  ]
+var STATUS_CODE_NAMES = {
+  0: "active",
+  1: "bench",
+  2: "dropped"
+}
+
+var loadCardsOwnedByPlayer = function(memberId, callback) {
+  store.loadRosterByMemberId(memberId, function(card_statuses){
+    var vms = _.map(card_statuses, function(card_status){
+      return {
+        name: card_status.card_name,
+        status: STATUS_CODE_NAMES[card_status.status_code],
+      }
+    })
+    callback(vms)
+  })
 }
 
 var isLand = function(cardData) {
@@ -49,10 +58,12 @@ var constructRosterData = function(cardOwnership) {
   return rosterData
 }
 
-var loadRoster = function(memberId) {
-  var ownedCards = loadCardsOwnedByPlayer(memberId)
-  var rosterCards = _.map(ownedCards, constructRosterData)
-  return _.sortBy(rosterCards, card => sortOrder[card.position])
+var loadRoster = function(memberId, callback) {
+  loadCardsOwnedByPlayer(memberId, function(ownedCards){
+    var rosterCards = _.map(ownedCards, constructRosterData)
+    var sortedCards = _.sortBy(rosterCards, card => sortOrder[card.position])
+    callback(sortedCards)
+  })
 }
 
 exports.loadRoster = loadRoster;

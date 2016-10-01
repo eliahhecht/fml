@@ -1,7 +1,7 @@
 var fs = require("fs")
 var file = "./test.db"
-var exists = fs.existsSync(file)
 
+var exists = fs.existsSync(file)
 if(!exists) {
   console.log("Creating DB file.")
   fs.openSync(file, "w")
@@ -21,9 +21,23 @@ function insertCardStatus(memberId, cardName, statusCode, callback){
   )
 }
 
-function loadRosterForMember(memberId, callback){
+function loadRosterByMemberId(memberId, callback){
+  var rosterQuery = `
+SELECT t1.*
+FROM card_status t1
+JOIN (
+  SELECT card_name, MAX(created_at) latest
+  FROM card_status
+  WHERE member_id = $member_id
+  GROUP BY card_name
+) t2
+ON t1.card_name = t2.card_name
+AND t1.created_at = t2.latest
+WHERE t1.member_id = $member_id
+AND t1.status_code in (0,1)
+`
   var res = db.all(
-    "SELECT * FROM card_status WHERE member_id = $member_id AND status_code = 0",
+    rosterQuery,
     { $member_id: memberId },
     function (err, rows){
       callback(rows)
@@ -80,6 +94,12 @@ CREATE TABLE waiver (
       db.run("INSERT INTO league (name) VALUES ('Jacetice League')")
       db.run("INSERT INTO member (user_id, league_id) VALUES (1, 1)")
       insertCardStatus(1, "Bring to Light", 0, function(){})
+      insertCardStatus(1, "Shambling Vent", 0, function(){})
+      insertCardStatus(1, "Smuggler's Copter", 0, function(){})
+      insertCardStatus(1, "Chandra, Pyrogenius", 0, function(){})
+      insertCardStatus(1, "Chandra, Pyrogenius", 1, function(){})
+      insertCardStatus(1, "Mountain", 0, function(){})
+      insertCardStatus(1, "Mountain", 2, function(){})
     }
 
     db.each("SELECT * FROM user", function(err, row) {
@@ -96,7 +116,7 @@ CREATE TABLE waiver (
   // db.close()
 }
 initialize() // run on module load
-loadRosterForMember(1, console.log)
+loadRosterByMemberId(1, console.log)
 
 exports.insertCardStatus = insertCardStatus
-exports.loadRosterForMember = loadRosterForMember
+exports.loadRosterByMemberId = loadRosterByMemberId
