@@ -53,9 +53,31 @@ var constructRosterData = function(cardOwnership) {
   return rosterData
 }
 
+const ALLOWED_LANDS = 1
+const ALLOWED_PERMANENTS = 3
+const ALLOWED_NONPERMANENTS = 2
+
+var addEmptyForPosition = function(position, expectedCount, cards) {
+  var makeEmptyEntry = position => { return {position: position, name: "", isEmpty: true} }
+  var numberPresent = _.filter(cards, c => c.position == position).length;
+  if (numberPresent < expectedCount) {
+    var numberOfEmptySlotsToAdd = expectedCount - numberPresent;
+    for (var i = 0; i < numberOfEmptySlotsToAdd; i++) {
+      cards.push(makeEmptyEntry(position));
+    }
+  }
+}
+
+var addEmptySlots = function(cards) {
+  addEmptyForPosition(position.land, ALLOWED_LANDS, cards)
+  addEmptyForPosition(position.permanent, ALLOWED_PERMANENTS, cards)
+  addEmptyForPosition(position.nonPermanent, ALLOWED_NONPERMANENTS, cards)
+}
+
 var loadRoster = function(memberId, callback) {
   loadCardsOwnedByPlayer(memberId, function(ownedCards){
     var rosterCards = _.map(ownedCards, constructRosterData)
+    addEmptySlots(rosterCards)
     var sortedCards = _.sortBy(rosterCards, card => sortOrder[card.position])
     callback(sortedCards)
   })

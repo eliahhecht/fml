@@ -16,7 +16,7 @@ var staticFileDir = __dirname + "/../public"
 app.use(express.static(staticFileDir))
 
 app.get('/', function(req, res){
-  roster.loadRoster(1, function(memberRoster){
+  roster.loadRoster(/* memberId */ 1, function(memberRoster){
     var data = {
       playerName: 'Test',
       roster: memberRoster
