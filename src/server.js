@@ -8,8 +8,8 @@ var server = http.createServer(app)
 server.listen(PORT)
 
 app.get('/', function(req, res){
-   var data = {}
-   res.send("hello")
+  var data = {}
+  res.send("hello")
 })
 
 // Console will print the message
