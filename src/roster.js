@@ -69,12 +69,9 @@ var updateRoster = function(memberId, cardName, newStatusCode, callback) {
     }
 
     var validStatus = false
-    for (statusName of Object.keys(constant.StatusCode)) {
-      if (constant.StatusCode.hasOwnProperty(statusName)) {
-        var statusCode = constant.StatusCode[statusName]
+    Object.values(constants.StatusCode).forEach(function (statusCode){
         validStatus |= statusCode == newStatusCode
-      }
-    }
+    })
     if (!validStatus){
       callback(false)
     }
