@@ -2,7 +2,7 @@ var http = require('http')
 var express = require("express")
 var pug = require('pug')
 var app = express()
-var mtgjson = require('./mtgjson.js')
+var roster = require('./roster.js')
 
 var PORT = 8081
 
@@ -12,11 +12,10 @@ server.listen(PORT)
 var rosterTemplate = pug.compileFile("pug/roster.pug")
 
 app.get('/', function(req, res){
-  var legalCards = mtgjson.legalCards;
+  var memberRoster = roster.loadRoster('someMemberId')
   var data = {
     playerName: 'Test',
-    cards: ['Black Lotus', 'Mox Diamond'],
-    cardCount: legalCards.length
+    roster: memberRoster
   }
   res.send(rosterTemplate(data))
 })

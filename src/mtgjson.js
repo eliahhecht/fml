@@ -4,15 +4,14 @@ var allCards = require('../data/AllCards-x.json')
 var legalCards = []
 var legalCardsByName = {}
 
+var legalSets = ['BFZ', 'OGW', 'SOI', 'EMN', 'KLD']
+
 for (cardName of Object.keys(allCards)) {
   if (allCards.hasOwnProperty(cardName)) {
     var card = allCards[cardName];
-    if (_.find(card.legalities, x => x.legality == 'Legal' && x.format == 'Standard')) {
-      console.log('found legal card')
+    if (_.intersection(card.printings, legalSets).length > 0) {
       legalCards.push(card)
       legalCardsByName[cardName] = card
-    } else {
-      // console.log('card not legal: ' + cardName)
     }
   }
 }
