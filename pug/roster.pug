@@ -5,6 +5,7 @@ html
     include head.pug
   body
     div.container
+      h2 #{cardCount} legal cards
       h1=(playerName + '\'s Roster')
       table.table
         each card in cards
