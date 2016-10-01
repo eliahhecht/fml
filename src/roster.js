@@ -1,19 +1,14 @@
 var mtgJson = require('./mtgjson')
 var _ = require('lodash')
 var store = require('./store')
-
-var STATUS_CODE_NAMES = {
-  0: "active",
-  1: "bench",
-  2: "dropped"
-}
+var constant = require('./../public/constant')
 
 var loadCardsOwnedByPlayer = function(memberId, callback) {
-  store.loadRosterByMemberId(memberId, function(card_statuses){
-    var vms = _.map(card_statuses, function(card_status){
+  store.loadRosterByMemberId(memberId, function(cardStatuses){
+    var vms = _.map(cardStatuses, function(cardStatus){
       return {
-        name: card_status.card_name,
-        status: STATUS_CODE_NAMES[card_status.status_code],
+        name: cardStatus.card_name,
+        status: cardStatus.status_code,
       }
     })
     callback(vms)
@@ -43,7 +38,7 @@ sortOrder[position.bench] = 3
 
 var constructRosterData = function(cardOwnership) {
   var rosterData = { name: cardOwnership.name }
-  if (cardOwnership.status == 'bench') {
+  if (cardOwnership.status == constant.StatusCode.Bench) {
     rosterData.position = position.bench
   } else {
     var cardData = mtgJson.getCardByName(cardOwnership.name)
@@ -63,6 +58,33 @@ var loadRoster = function(memberId, callback) {
     var rosterCards = _.map(ownedCards, constructRosterData)
     var sortedCards = _.sortBy(rosterCards, card => sortOrder[card.position])
     callback(sortedCards)
+  })
+}
+
+var updateRoster = function(memberId, cardName, newStatusCode, callback) {
+  loadCardsOwnedByPlayer(memberId, function(ownedCards){
+    var doesOwnCard = _.filter(ownedCards, card => card.name == cardName).length > 0
+    if (!doesOwnCard){
+      callback(false)
+    }
+
+    var validStatus = false
+    for (statusName of Object.keys(constant.StatusCode)) {
+      if (constant.StatusCode.hasOwnProperty(statusName)) {
+        var statusCode = constant.StatusCode[statusName]
+        validStatus |= statusCode == newStatusCode
+      }
+    }
+    if (!validStatus){
+      callback(false)
+    }
+
+    store.insertCardStatus(memberId, cardName, newStatusCode, function(){
+      callback({
+        name: cardName,
+        status: newStatusCode
+      })
+    })
   })
 }
 

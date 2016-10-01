@@ -2,7 +2,7 @@ var http = require('http')
 var express = require("express")
 var pug = require('pug')
 var app = express()
-var roster = require('./roster.js')
+var roster = require('./roster')
 
 var PORT = 8081
 
@@ -23,6 +23,22 @@ app.get('/', function(req, res){
     }
     res.send(rosterTemplate(data))
   })
+})
+
+app.post('/card_status/', function(req, res){
+  roster.updateRoster(
+    req.params.memberId,
+    req.params.cardName,
+    req.params.status,
+    function(success){
+      if (success){
+        res.send("ok")
+      } else {
+        res.status(400);
+        res.send('None shall pass');
+      }
+    }
+  )
 })
 
 // Console will print the message
