@@ -5,9 +5,11 @@ html
     include head.pug
   body
     div.container
-      h2 #{cardCount} legal cards
       h1=(playerName + '\'s Roster')
       table.table
-        each card in cards
+        each card in roster.active
           tr
-            td= card
+            td= card.name
+        each card in roster.bench
+          tr
+            td= card.name
