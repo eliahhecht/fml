@@ -1,0 +1,12 @@
+doctype html
+html
+  head
+    title Roster
+    include head.pug
+  body
+    div.container
+      h1=(player_name + '\'s Roster')
+      table.table
+        each card in cards
+          tr
+            td= card
