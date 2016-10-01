@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/eliahhecht/fml/issues"
   },
-  "homepage": "https://github.com/eliahhecht/fml#readme"
+  "homepage": "https://github.com/eliahhecht/fml#readme",
+  "dependencies": {
+    "sqlite3": "^3.1.4"
+  }
 }
