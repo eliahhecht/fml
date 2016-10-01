@@ -16,6 +16,9 @@ function insertCardStatus(memberId, cardName, statusCode, callback){
     "INSERT INTO card_status (member_id, card_name, status_code) VALUES ($member_id, $card_name, $status_code)",
     { $member_id: memberId, $card_name: cardName, $status_code: statusCode },
     function (err, res){
+      if (err){
+        console.log(err)
+      }
       callback(res)
     }
   )
@@ -26,20 +29,21 @@ function loadRosterByMemberId(memberId, callback){
 SELECT t1.*
 FROM card_status t1
 JOIN (
-  SELECT card_name, MAX(created_at) latest
+  SELECT card_name, MAX(id) id
   FROM card_status
   WHERE member_id = $member_id
   GROUP BY card_name
 ) t2
-ON t1.card_name = t2.card_name
-AND t1.created_at = t2.latest
-WHERE t1.member_id = $member_id
+ON t1.id = t2.id
 AND t1.status_code in (0,1)
 `
   var res = db.all(
     rosterQuery,
     { $member_id: memberId },
     function (err, rows){
+      if (err){
+        console.log(err)
+      }
       callback(rows)
     }
   )
@@ -68,6 +72,7 @@ CREATE TABLE member (
 )`
       var createCardStatus = `
 CREATE TABLE card_status (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
   member_id INTEGER,
   card_name CHAR(50) NOT NULL,
   status_code INTEGER NOT NULL,
