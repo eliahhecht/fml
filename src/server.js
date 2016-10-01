@@ -8,13 +8,14 @@ var PORT = 8081
 var server = http.createServer(app)
 server.listen(PORT)
 
+var rosterTemplate = pug.compileFile("pug/roster.pug")
+
 app.get('/', function(req, res){
   var data = {
-    player_name: 'Test',
+    playerName: 'Test',
     cards: ['Black Lotus', 'Mox Diamond']
   }
-  var template = pug.compileFile("pug/roster.pug")
-  res.send(template(data))
+  res.send(rosterTemplate(data))
 })
 
 // Console will print the message
