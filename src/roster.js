@@ -6,7 +6,8 @@ var loadCardsOwnedByPlayer = function(memberId) {
   return [
     { name: "Shambling Vent", status: "active" },
     { name: "Smuggler's Copter", status: "active" },
-    { name: "Chandra, Pyrogenius", status: "bench" }
+    { name: "Chandra, Pyrogenius", status: "bench" },
+    { name: "Bring to Light", status: "active" }
   ]
 }
 
@@ -18,18 +19,31 @@ var isPermanent = function(cardData) {
   return _.intersection(cardData.types, ['Land', 'Artifact', 'Enchantment', 'Creature', 'Planeswalker']).length > 0
 }
 
+var position = {
+  land: "Land",
+  permanent: "Permanent",
+  nonPermanent: "Instant/Sorcery",
+  bench: "Bench"
+}
+
+var sortOrder = {}
+sortOrder[position.land] = 0
+sortOrder[position.permanent] = 1
+sortOrder[position.nonPermanent] = 2
+sortOrder[position.bench] = 3
+
 var constructRosterData = function(cardOwnership) {
   var rosterData = { name: cardOwnership.name }
   if (cardOwnership.status == 'bench') {
-    rosterData.position = 'Bench'
+    rosterData.position = position.bench
   } else {
     var cardData = mtgJson.getCardByName(cardOwnership.name)
     if (isLand(cardData)) {
-      rosterData.position = 'Land'
+      rosterData.position = position.land
     } else if (isPermanent(cardData)) {
-      rosterData.position = 'Non-Land Permanent'
+      rosterData.position = position.permanent
     } else {
-      rosterData.position = 'Non-Permanent'
+      rosterData.position = position.nonPermanent
     }
   }
   return rosterData
@@ -37,7 +51,8 @@ var constructRosterData = function(cardOwnership) {
 
 var loadRoster = function(memberId) {
   var ownedCards = loadCardsOwnedByPlayer(memberId)
-  return _.map(ownedCards, constructRosterData)
+  var rosterCards = _.map(ownedCards, constructRosterData)
+  return _.sortBy(rosterCards, card => sortOrder[card.position])
 }
 
 exports.loadRoster = loadRoster;
