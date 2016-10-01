@@ -7,6 +7,9 @@ html
     div.container
       h1=(playerName + '\'s Roster')
       table.table
+        tr
+          th Position
+          th Name
         each card in roster
           tr
             td= card.position

@@ -27,7 +27,7 @@ var constructRosterData = function(cardOwnership) {
     if (isLand(cardData)) {
       rosterData.position = 'Land'
     } else if (isPermanent(cardData)) {
-      rosterData.position = 'Permanent'
+      rosterData.position = 'Non-Land Permanent'
     } else {
       rosterData.position = 'Non-Permanent'
     }

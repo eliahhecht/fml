@@ -1,2 +1,2 @@
 rm test.db
-nodemon index.js
+nodemon index.js -e "js pug"
