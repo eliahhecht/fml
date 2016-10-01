@@ -1,33 +1,30 @@
-var fs = require("fs");
-var file = "./test.db";
-var exists = fs.existsSync(file);
+var fs = require("fs")
+var file = "./test.db"
+var exists = fs.existsSync(file)
 
 if(!exists) {
-  console.log("Creating DB file.");
-  fs.openSync(file, "w");
+  console.log("Creating DB file.")
+  fs.openSync(file, "w")
 }
 
-var sqlite3 = require("sqlite3").verbose();
-var db = new sqlite3.Database(file);
+var sqlite3 = require("sqlite3").verbose()
+var db = new sqlite3.Database(file)
 
-db.serialize(function() {
-  if(!exists) {
-    db.run("CREATE TABLE Stuff (thing TEXT)");
-  
-    var stmt = db.prepare("INSERT INTO Stuff VALUES (?)");
+var startup = function() {
+  db.serialize(function() {
+    if(!exists) {
+      db.run("CREATE TABLE user (id INTEGER PRIMARY KEY AUTOINCREMENT, email CHAR(50))")
 
-    //Insert random data
-    var rnd;
-    for (var i = 0; i < 10; i++) {
-      rnd = Math.floor(Math.random() * 10000000);
-      stmt.run("Thing #" + rnd);
+      var stmt = db.prepare("INSERT INTO user (email) VALUES ('jtms@aol.com')")
+      stmt.run()
+      stmt.finalize()
     }
-    stmt.finalize();
-  }
 
-  db.each("SELECT rowid AS id, thing FROM Stuff", function(err, row) {
-    console.log(row.id + ": " + row.thing);
-  });
-});
+    db.each("SELECT u.id, u.email FROM user u", function(err, row) {
+      console.log(row.id + ": " + row.email)
+    })
+  })
 
-db.close();
+  db.close()
+}
+startup()
