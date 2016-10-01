@@ -10,7 +10,28 @@ if(!exists) {
 var sqlite3 = require("sqlite3").verbose()
 var db = new sqlite3.Database(file)
 
-var startup = function() {
+
+function insertCardStatus(memberId, cardName, statusCode, callback){
+  db.run(
+    "INSERT INTO card_status (member_id, card_name, status_code) VALUES ($member_id, $card_name, $status_code)",
+    { $member_id: memberId, $card_name: cardName, $status_code: statusCode },
+    function (err, res){
+      callback(res)
+    }
+  )
+}
+
+function loadRosterForMember(memberId, callback){
+  var res = db.all(
+    "SELECT * FROM card_status WHERE member_id = $member_id AND status_code = 0",
+    { $member_id: memberId },
+    function (err, rows){
+      callback(rows)
+    }
+  )
+}
+
+function initialize() {
   db.serialize(function() {
     if(!exists) {
       var createUser = `
@@ -35,7 +56,7 @@ CREATE TABLE member (
 CREATE TABLE card_status (
   member_id INTEGER,
   card_name CHAR(50) NOT NULL,
-  status INTEGER NOT NULL,
+  status_code INTEGER NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY(member_id) REFERENCES member(id)
 )`
@@ -58,6 +79,7 @@ CREATE TABLE waiver (
       db.run("INSERT INTO user (email) VALUES ('jtms@aol.com')")
       db.run("INSERT INTO league (name) VALUES ('Jacetice League')")
       db.run("INSERT INTO member (user_id, league_id) VALUES (1, 1)")
+      insertCardStatus(1, "Bring to Light", 0, function(){})
     }
 
     db.each("SELECT * FROM user", function(err, row) {
@@ -70,7 +92,11 @@ CREATE TABLE waiver (
       console.log(row)
     })
   })
-
-  db.close()
+  // hmmmmmm
+  // db.close()
 }
-startup()
+initialize() // run on module load
+loadRosterForMember(1, console.log)
+
+exports.insertCardStatus = insertCardStatus
+exports.loadRosterForMember = loadRosterForMember
