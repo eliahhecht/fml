@@ -1,5 +1,5 @@
-var all_cards = requre('AllCards-x.json')
+var allCards = requre('AllCards-x.json')
 
-for (card_name of Object.keys(all_cards)) {
+for (cardName of Object.keys(allCards)) {
     
 }
