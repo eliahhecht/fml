@@ -11,6 +11,10 @@ server.listen(PORT)
 
 var rosterTemplate = pug.compileFile("pug/roster.pug")
 
+// serve static files
+var staticFileDir = __dirname + "/../public"
+app.use(express.static(staticFileDir))
+
 app.get('/', function(req, res){
   var memberRoster = roster.loadRoster('someMemberId')
   var data = {
