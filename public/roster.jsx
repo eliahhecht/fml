@@ -1,14 +1,34 @@
 var RosterEntry = React.createClass({
 
+	isBench: function() {
+		return this.props.card.position == 'Bench'
+	},
+
+	triggerMove: function() {
+		var newStatus = isBench ? RosterStatusCode.Active : RosterStatusCode.Bench
+		$.post(
+			"/card_status",
+			{
+				cardName: this.props.card.name,
+				status: newStatus,
+				memberId: this.props.memberId
+			}
+		)
+	},
+
 	render: function() {
 
 		var moveButton;
 		if (this.props.card.isEmpty) {
 			moveButton = <td />
 		} else {
-			var arrowDirection = (this.props.card.position == 'Bench' ? 'up' : 'down')
+			var arrowDirection = this.isBench() ? 'up' : 'down'
 			var spanClass = "glyphicon glyphicon-arrow-" + arrowDirection
-			moveButton = <td><button className="btn btn-default btn-xs"><span className={spanClass}></span></button></td>
+			moveButton = <td> 
+				<button onClick={this.triggerMove} className="btn btn-default btn-xs"> 
+					<span className={spanClass}></span> 
+				</button> 
+			</td>
 		}
 
 		return(
@@ -30,9 +50,10 @@ var RosterEntry = React.createClass({
 var Roster = React.createClass({
 
 	render: function() {
+		var self = this;
 		var rosterItemNodes = this.props.rosterItems.map(function(item) {
 			return(
-				<RosterEntry card={item} />
+				<RosterEntry card={item} memberId={self.props.memberId} />
 			)
 		});
 
@@ -56,6 +77,6 @@ var Roster = React.createClass({
 })
 
 ReactDOM.render(
-    <Roster rosterItems={window.bootstrapRosterData} />,
+    <Roster rosterItems={window.bootstrapRosterData.rosterItems} memberId={window.bootstrapRosterData.memberId} />,
     document.getElementById('roster')
-);
+)

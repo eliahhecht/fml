@@ -1,7 +1,7 @@
 var mtgJson = require('./mtgjson')
 var _ = require('lodash')
 var store = require('./store')
-var constant = require('./../public/constant')
+var constant = require('./constant')
 
 var loadCardsOwnedByPlayer = function(memberId, callback) {
   store.loadRosterByMemberId(memberId, function(cardStatuses){
@@ -38,7 +38,7 @@ sortOrder[position.bench] = 3
 
 var constructRosterData = function(cardOwnership) {
   var rosterData = { name: cardOwnership.name }
-  if (cardOwnership.status == constant.StatusCode.Bench) {
+  if (cardOwnership.status == constant.RosterStatusCode.Bench) {
     rosterData.position = position.bench
   } else {
     var cardData = mtgJson.getCardByName(cardOwnership.name)
