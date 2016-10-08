@@ -23,23 +23,10 @@ var Store = {
 
 	enrich: function(cards) {
 		var self = this
-		return _.chain(cards)
+		return _(cards)
 			.forEach(function(card) {
 				card.position = self.findPosition(card)
 			})
-			.sortBy(function(card) {
-				switch(card.position) {
-					case self.position.Land:
-						return 0
-					case self.position.Permanent:
-						return 1
-					case self.position.InstantOrSorcery:
-						return 2
-					case self.position.Bench:
-						return 3
-				}
-			})
-			.value()
 	},
 
 	findPosition: function(card) {
@@ -87,10 +74,14 @@ var RosterEntry = React.createClass({
 		//ehtodo push this up to the client somehow
 	},
 
+	isEmpty: function() {
+		return this.props.card.name == ""
+	},
+
 	render: function() {
 
 		var moveButton;
-		if (this.props.card.isEmpty) {
+		if (this.isEmpty()) {
 			moveButton = <td />
 		} else {
 			var arrowDirection = this.isBench() ? 'up' : 'down'
@@ -120,15 +111,47 @@ var RosterEntry = React.createClass({
 
 var Roster = React.createClass({
 
+	makeRosterItem: function(card) {
+		var self = this
+		return (<RosterEntry card={card} memberId={self.props.memberId} />)
+	},
+
 	render: function() {
 		var self = this;
-		var rosterItemNodes = this.props.rosterItems.map(function(item) {
-			return(
-				<RosterEntry card={item} memberId={self.props.memberId} />
-			)
-		});
+		var expectedCounts = [
+			{
+				position: Store.position.Land,
+				expectedCount: 1
+			},
+			{
+				position: Store.position.Permanent,
+				expectedCount: 3
+			},
+			{
+				position: Store.position.InstantOrSorcery,
+				expectedCount: 2
+			}
+		]
 
-		console.log(rosterItemNodes)
+		var rosterItemNodes = []
+
+		_(expectedCounts).forEach(function (count) {
+			var countRemaining = count.expectedCount
+			_(self.props.rosterItems).forEach(function (card) {
+				if (card.position == count.position) {
+					countRemaining--
+				  rosterItemNodes.push(self.makeRosterItem(card))
+				}
+			})
+			for (; countRemaining > 0; countRemaining--) {
+				var emptySlot = {name: "", position: count.position}
+				rosterItemNodes.push(<RosterEntry card={emptySlot} />)
+			}
+		})
+
+		_(self.props.rosterItems)
+			.filter(function(card) { return card.position == Store.position.Bench })
+			.forEach(function(card) { rosterItemNodes.push(self.makeRosterItem(card)) })
 
 		return(
 			<table className="table">
