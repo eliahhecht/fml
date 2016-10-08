@@ -1,3 +1,82 @@
+var boostrapData = window.bootstrapRosterData
+var Store = {
+
+	rawRosterItems: bootstrapRosterData.rosterItems,
+	memberId: boostrapData.memberId,
+
+	getRosterItems: function() {
+		return this.enrich(this.rawRosterItems)
+	},
+
+	// currently synced manually with src/constant.js
+	cardStatus: {
+		Active: 0,
+		Bench: 1
+	},
+
+	position: {
+		Land: "Land",
+		Permanent: "Permanent",
+		InstantOrSorcery: "Instant/Sorcery",
+		Bench: "Bench"
+	},
+
+	enrich: function(cards) {
+		var self = this
+		return _.chain(cards)
+			.forEach(function(card) {
+				card.position = self.findPosition(card)
+			})
+			.sortBy(function(card) {
+				switch(card.position) {
+					case self.position.Land:
+						return 0
+					case self.position.Permanent:
+						return 1
+					case self.position.InstantOrSorcery:
+						return 2
+					case self.position.Bench:
+						return 3
+				}
+			})
+			.value()
+	},
+
+	findPosition: function(card) {
+		var self = this
+		if (card.status == 1) {
+			return self.position.Bench
+		} else if (_.includes(card.types, "Land")) {
+			return self.position.Land
+		} else if (_.intersection(card.types, ["Instant", "Sorcery"]).length) {
+			return self.position.InstantOrSorcery
+		} else if (card.types) {
+			return self.position.Permanent
+		} else {
+			return "Unknown"
+		}
+	},
+
+	submitMove: function(card) {
+		var self = this
+		var activeStatus = 0
+		var benchStatus = 1
+		var newStatus = card.position == 'Bench' ? activeStatus : benchStatus;
+		$.post(
+			"/card_status",
+			{
+				cardName: card.name,
+				status: newStatus,
+				memberId: self.memberId
+			}
+		).then(function() {
+			card.position = findPosition(card)
+			self.trigger('updateRoster', self.Data)
+		})
+	}
+
+}
+
 var RosterEntry = React.createClass({
 
 	isBench: function() {
@@ -6,17 +85,6 @@ var RosterEntry = React.createClass({
 
 	triggerMove: function() {
 		//ehtodo push this up to the client somehow
-		var activeStatus = 0
-		var benchStatus = 1
-		var newStatus = this.isBench() ? activeStatus : benchStatus
-		$.post(
-			"/card_status",
-			{
-				cardName: this.props.card.name,
-				status: newStatus,
-				memberId: this.props.memberId
-			}
-		)
 	},
 
 	render: function() {
@@ -80,6 +148,6 @@ var Roster = React.createClass({
 })
 
 ReactDOM.render(
-    <Roster rosterItems={window.bootstrapRosterData.rosterItems} memberId={window.bootstrapRosterData.memberId} />,
-    document.getElementById('roster')
+  <Roster rosterItems={Store.getRosterItems()} memberId={Store.memberId} />,
+  document.getElementById('roster')
 )

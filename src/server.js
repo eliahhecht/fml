@@ -26,7 +26,7 @@ app.use(bodyParser.json())
 
 app.get('/', function(req, res){
 	var memberId = 1
-  roster.loadRoster(memberId, function(memberRoster){
+  roster.loadCardsOwnedByPlayer(memberId, function(memberRoster){
     var data = {
       playerName: 'Test',
       roster: {

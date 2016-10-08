@@ -1,3 +1,4 @@
+// currently synced manually with public/roster.jsx
 var RosterStatusCode = {
   Active: 0,
   Bench: 1,
