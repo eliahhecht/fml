@@ -42,9 +42,9 @@ app.post('/card_status/', function(req, res){
 	debug("Updating card %s for member %s to status %s", req.body.cardName, req.body.memberId, req.body.status)
 
   roster.updateRoster(
-    req.params.memberId,
-    req.params.cardName,
-    req.params.status,
+    req.body.memberId,
+    req.body.cardName,
+    req.body.status,
     function(success){
       if (success){
         res.send("ok")
