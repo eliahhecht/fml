@@ -5,7 +5,10 @@ var RosterEntry = React.createClass({
 	},
 
 	triggerMove: function() {
-		var newStatus = isBench ? RosterStatusCode.Active : RosterStatusCode.Bench
+		//ehtodo push this up to the client somehow
+		var activeStatus = 0
+		var benchStatus = 1
+		var newStatus = this.isBench() ? activeStatus : benchStatus
 		$.post(
 			"/card_status",
 			{

@@ -1,5 +1,7 @@
-var mtgJson = require('./mtgjson')
 var _ = require('lodash')
+var debug = require('debug')('fml:roster')
+
+var mtgJson = require('./mtgjson')
 var store = require('./store')
 var constant = require('./constant')
 
@@ -87,14 +89,12 @@ var updateRoster = function(memberId, cardName, newStatusCode, callback) {
   loadCardsOwnedByPlayer(memberId, function(ownedCards){
     var doesOwnCard = _.filter(ownedCards, card => card.name == cardName).length > 0
     if (!doesOwnCard){
+      debug("update denied, player does not own card")
       callback(false)
     }
 
-    var validStatus = false
-    Object.values(constants.StatusCode).forEach(function (statusCode){
-        validStatus |= statusCode == newStatusCode
-    })
-    if (!validStatus){
+    if (!constant.RosterStatusCode.hasOwnProperty(newStatusCode)){
+      debug("update denied, %s is not a valid status code", newStatusCode)
       callback(false)
     }
 
@@ -107,4 +107,5 @@ var updateRoster = function(memberId, cardName, newStatusCode, callback) {
   })
 }
 
-exports.loadRoster = loadRoster;
+exports.loadRoster = loadRoster
+exports.updateRoster = updateRoster
