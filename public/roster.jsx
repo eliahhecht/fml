@@ -1,11 +1,11 @@
 var boostrapData = window.bootstrapRosterData
 var Store = {
 
-	rawRosterItems: bootstrapRosterData.rosterItems,
+	cards: bootstrapRosterData.rosterItems,
 	memberId: boostrapData.memberId,
 
 	getRosterItems: function() {
-		return this.enrich(this.rawRosterItems)
+		return this.enrich(this.cards)
 	},
 
 	// currently synced manually with src/constant.js
@@ -48,21 +48,23 @@ var Store = {
 		var self = this
 		var activeStatus = 0
 		var benchStatus = 1
-		var newStatus = card.position == 'Bench' ? activeStatus : benchStatus;
+		card.status = card.position == 'Bench' ? activeStatus : benchStatus;
+
 		$.post(
 			"/card_status",
 			{
 				cardName: card.name,
-				status: newStatus,
+				status: card.status,
 				memberId: self.memberId
 			}
 		).then(function() {
-			card.position = findPosition(card)
-			self.trigger('updateRoster', self.Data)
+			card.position = self.findPosition(card)
+			self.trigger('updateRoster')
 		})
 	}
 
 }
+MicroEvent.mixin(Store)
 
 var RosterEntry = React.createClass({
 
@@ -71,7 +73,7 @@ var RosterEntry = React.createClass({
 	},
 
 	triggerMove: function() {
-		//ehtodo push this up to the client somehow
+		Store.submitMove(this.props.card)
 	},
 
 	isEmpty: function() {
@@ -170,7 +172,12 @@ var Roster = React.createClass({
 	}
 })
 
-ReactDOM.render(
-  <Roster rosterItems={Store.getRosterItems()} memberId={Store.memberId} />,
-  document.getElementById('roster')
-)
+var renderRoster = function() {
+	ReactDOM.render(
+	  <Roster rosterItems={Store.getRosterItems()} memberId={Store.memberId} />,
+	  document.getElementById('roster')
+	)
+}
+
+renderRoster()
+Store.bind('updateRoster', renderRoster)
