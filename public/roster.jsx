@@ -1,35 +1,53 @@
+"use strict"
+
 var boostrapData = window.bootstrapRosterData
-var Store = {
+var Store = function() {
+	var self = this
 
-	cards: bootstrapRosterData.rosterItems,
-	memberId: boostrapData.memberId,
+	this.cards = bootstrapRosterData.rosterItems
+	this.memberId = boostrapData.memberId
 
-	getRosterItems: function() {
-		return this.enrich(this.cards)
-	},
-
-	// currently synced manually with src/constant.js
-	cardStatus: {
-		Active: 0,
-		Bench: 1
-	},
-
-	position: {
-		Land: "Land",
-		Permanent: "Permanent",
-		InstantOrSorcery: "Instant/Sorcery",
-		Bench: "Bench"
-	},
-
-	enrich: function(cards) {
-		var self = this
+	var enrich = function(cards) {
 		return _(cards)
 			.forEach(function(card) {
 				card.position = self.findPosition(card)
 			})
-	},
+	}
 
-	findPosition: function(card) {
+	this.getRosterItems = function() {
+		return enrich(this.cards)
+	}
+
+	// currently synced manually with src/constant.js
+	this.cardStatus =  {
+		Active: 0,
+		Bench: 1
+	}
+
+	this.position =  {
+		Land: "Land",
+		Permanent: "Permanent",
+		InstantOrSorcery: "Instant/Sorcery",
+		Bench: "Bench"
+	}
+
+	this.expectedCounts = [
+		{
+			position: this.position.Land,
+			expectedCount: 1
+		},
+		{
+			position: this.position.Permanent,
+			expectedCount: 3
+		},
+		{
+			position: this.position.InstantOrSorcery,
+			expectedCount: 2
+		}
+	]
+
+
+	this.findPosition = function(card) {
 		var self = this
 		if (card.status == 1) {
 			return self.position.Bench
@@ -42,9 +60,9 @@ var Store = {
 		} else {
 			return "Unknown"
 		}
-	},
+	}
 
-	submitMove: function(card) {
+	this.submitMove = function(card) {
 		var self = this
 		var activeStatus = 0
 		var benchStatus = 1
@@ -63,8 +81,21 @@ var Store = {
 		})
 	}
 
+	this.couldBecomeActive = function(card) {
+		var self = this
+		candidateCardPosition = self.findPosition(card)
+		totalSlotsInPosition = _(self.expectedCount)
+			.find(function(pos) {pos.position == candidateCardPosition}).expectedCount
+		activeCardsInPosition = _(self.cards)
+			.filter(function(c) {c.position == candidateCardPosition})
+		return activeCardsInPosition < totalSlotsInPosition
+	}
+
 }
-MicroEvent.mixin(Store)
+
+var store = new Store()
+
+MicroEvent.mixin(store)
 
 var RosterEntry = React.createClass({
 
@@ -73,11 +104,24 @@ var RosterEntry = React.createClass({
 	},
 
 	triggerMove: function() {
-		Store.submitMove(this.props.card)
+		store.submitMove(this.props.card)
 	},
 
 	isEmpty: function() {
 		return this.props.card.name == ""
+	},
+
+	canMove: function() {
+		var self = this
+		if (self.isEmpty) {
+			return false
+		} else if (!self.isBench) {
+			// can always move cards down to bench
+			return true
+		} else {
+			return store.couldBecomeActive(this.props.card)
+		}
+
 	},
 
 	render: function() {
@@ -120,24 +164,10 @@ var Roster = React.createClass({
 
 	render: function() {
 		var self = this;
-		var expectedCounts = [
-			{
-				position: Store.position.Land,
-				expectedCount: 1
-			},
-			{
-				position: Store.position.Permanent,
-				expectedCount: 3
-			},
-			{
-				position: Store.position.InstantOrSorcery,
-				expectedCount: 2
-			}
-		]
 
 		var rosterItemNodes = []
 
-		_(expectedCounts).forEach(function (count) {
+		_(store.expectedCounts).forEach(function (count) {
 			var countRemaining = count.expectedCount
 			_(self.props.rosterItems).forEach(function (card) {
 				if (card.position == count.position) {
@@ -152,7 +182,7 @@ var Roster = React.createClass({
 		})
 
 		_(self.props.rosterItems)
-			.filter(function(card) { return card.position == Store.position.Bench })
+			.filter(function(card) { return card.position == store.position.Bench })
 			.forEach(function(card) { rosterItemNodes.push(self.makeRosterItem(card)) })
 
 		return(
@@ -174,10 +204,10 @@ var Roster = React.createClass({
 
 var renderRoster = function() {
 	ReactDOM.render(
-	  <Roster rosterItems={Store.getRosterItems()} memberId={Store.memberId} />,
+	  <Roster rosterItems={store.getRosterItems()} memberId={store.memberId} />,
 	  document.getElementById('roster')
 	)
 }
 
 renderRoster()
-Store.bind('updateRoster', renderRoster)
+store.bind('updateRoster', renderRoster)
