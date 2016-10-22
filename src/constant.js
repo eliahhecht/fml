@@ -5,7 +5,7 @@ var RosterStatusCode = {
   Dropped: 2,
 
   isValid: function (code) {
-  	return code >= 0 && code <= 2
+    return code >= 0 && code <= 2
   }
 }
 

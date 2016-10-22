@@ -37,7 +37,7 @@ JOIN (
 ON t1.id = t2.id
 AND t1.status_code in (0,1)
 `
-  var res = db.all(
+  db.all(
     rosterQuery,
     { $member_id: memberId },
     function (err, rows) {
@@ -55,7 +55,7 @@ function insertLeague (callback) {
 INSERT INTO league (name)
 VALUES ('')
 `
-  var res = db.get(insertQuery,
+  db.get(insertQuery,
   function (err, row) {
     if (err) {
       debug(err)
@@ -125,13 +125,13 @@ CREATE TABLE waiver (
     }
 
     db.each('SELECT * FROM user', function (err, row) {
-      debug(row)
+      debug(err, row)
     })
     db.each('SELECT * FROM league', function (err, row) {
-      debug(row)
+      debug(err, row)
     })
     db.each('SELECT * FROM member', function (err, row) {
-      debug(row)
+      debug(err, row)
     })
   })
   // hmmmmmm
@@ -142,3 +142,4 @@ loadRosterByMemberId(1, debug)
 
 exports.insertCardStatus = insertCardStatus
 exports.loadRosterByMemberId = loadRosterByMemberId
+exports.insertLeague = insertLeague

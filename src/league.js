@@ -1,12 +1,12 @@
 var store = require('./store')
 var _ = require('lodash')
 
-/** Load the specified league, along with its players and their cards. 
+/** Load the specified league, along with its players and their cards.
  * Callback will be invoked with the league object.
 */
-function getLeagueById(leagueId, callback) {
+function getLeagueById (leagueId, callback) {
   store.loadLeagueById(leagueId, function (league) {
-    store.loadPlayersForLeague(leagueId, function(players)) {
+    store.loadPlayersForLeague(leagueId, function (players) {
       store.loadCardsOwnedByPlayers(_(players).pluck('playerId'), function (cards) {
         league.players = players
         players.forEach(function (p) { p.cards = [] })
@@ -16,6 +16,8 @@ function getLeagueById(leagueId, callback) {
         })
         callback(league)
       })
-    }
+    })
   })
 }
+
+exports.getLeagueById = getLeagueById

@@ -23,7 +23,7 @@ var loadCardsOwnedByPlayer = function (memberId, callback) {
 
 var updateRoster = function (memberId, cardName, newStatusCode, callback) {
   loadCardsOwnedByPlayer(memberId, function (ownedCards) {
-    var doesOwnCard = _.filter(ownedCards, card => card.name == cardName).length > 0
+    var doesOwnCard = _.filter(ownedCards, card => card.name === cardName).length > 0
     if (!doesOwnCard) {
       debug('update denied, player does not own card. player owns %j', ownedCards)
       callback(false)
