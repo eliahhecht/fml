@@ -1,23 +1,22 @@
-var fs = require("fs")
-var debug = require("debug")("fml:store")
-var file = "./test.db"
+var fs = require('fs')
+var debug = require('debug')('fml:store')
+var file = './test.db'
 
 var exists = fs.existsSync(file)
-if(!exists) {
-  console.log("Creating DB file.")
-  fs.openSync(file, "w")
+if (!exists) {
+  console.log('Creating DB file.')
+  fs.openSync(file, 'w')
 }
 
-var sqlite3 = require("sqlite3").verbose()
+var sqlite3 = require('sqlite3').verbose()
 var db = new sqlite3.Database(file)
 
-
-function insertCardStatus(memberId, cardName, statusCode, callback){
+function insertCardStatus (memberId, cardName, statusCode, callback) {
   db.run(
-    "INSERT INTO card_status (member_id, card_name, status_code) VALUES ($member_id, $card_name, $status_code)",
+    'INSERT INTO card_status (member_id, card_name, status_code) VALUES ($member_id, $card_name, $status_code)',
     { $member_id: memberId, $card_name: cardName, $status_code: statusCode },
-    function (err, res){
-      if (err){
+    function (err, res) {
+      if (err) {
         console.log(err)
       }
       callback(res)
@@ -25,7 +24,7 @@ function insertCardStatus(memberId, cardName, statusCode, callback){
   )
 }
 
-function loadRosterByMemberId(memberId, callback){
+function loadRosterByMemberId (memberId, callback) {
   var rosterQuery = `
 SELECT t1.*
 FROM card_status t1
@@ -41,8 +40,8 @@ AND t1.status_code in (0,1)
   var res = db.all(
     rosterQuery,
     { $member_id: memberId },
-    function (err, rows){
-      if (err){
+    function (err, rows) {
+      if (err) {
         debug(err)
       }
       callback(rows)
@@ -51,7 +50,7 @@ AND t1.status_code in (0,1)
 }
 
 /** Inserts a new league. The callback will be called with the ID of the newly inserted league. */
-function insertLeague(callback) {
+function insertLeague (callback) {
   var insertQuery = `
 INSERT INTO league (name)
 VALUES ('')
@@ -67,9 +66,9 @@ VALUES ('')
   })
 }
 
-function initialize() {
-  db.serialize(function() {
-    if(!exists) {
+function initialize () {
+  db.serialize(function () {
+    if (!exists) {
       var createUser = `
 CREATE TABLE user (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -115,23 +114,23 @@ CREATE TABLE waiver (
 
       db.run("INSERT INTO user (email) VALUES ('jtms@aol.com')")
       db.run("INSERT INTO league (name) VALUES ('Jacetice League')")
-      db.run("INSERT INTO member (user_id, league_id) VALUES (1, 1)")
-      insertCardStatus(1, "Bring to Light", 0, function(){})
-      insertCardStatus(1, "Shambling Vent", 0, function(){})
-      insertCardStatus(1, "Smuggler's Copter", 0, function(){})
-      insertCardStatus(1, "Chandra, Pyrogenius", 0, function(){})
-      insertCardStatus(1, "Chandra, Pyrogenius", 1, function(){})
-      insertCardStatus(1, "Mountain", 0, function(){})
-      insertCardStatus(1, "Mountain", 2, function(){})
+      db.run('INSERT INTO member (user_id, league_id) VALUES (1, 1)')
+      insertCardStatus(1, 'Bring to Light', 0, function () {})
+      insertCardStatus(1, 'Shambling Vent', 0, function () {})
+      insertCardStatus(1, "Smuggler's Copter", 0, function () {})
+      insertCardStatus(1, 'Chandra, Pyrogenius', 0, function () {})
+      insertCardStatus(1, 'Chandra, Pyrogenius', 1, function () {})
+      insertCardStatus(1, 'Mountain', 0, function () {})
+      insertCardStatus(1, 'Mountain', 2, function () {})
     }
 
-    db.each("SELECT * FROM user", function(err, row) {
+    db.each('SELECT * FROM user', function (err, row) {
       debug(row)
     })
-    db.each("SELECT * FROM league", function(err, row) {
+    db.each('SELECT * FROM league', function (err, row) {
       debug(row)
     })
-    db.each("SELECT * FROM member", function(err, row) {
+    db.each('SELECT * FROM member', function (err, row) {
       debug(row)
     })
   })

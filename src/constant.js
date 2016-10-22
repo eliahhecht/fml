@@ -4,9 +4,9 @@ var RosterStatusCode = {
   Bench: 1,
   Dropped: 2,
 
-  isValid: function(code) {
+  isValid: function (code) {
   	return code >= 0 && code <= 2
   }
 }
 
-exports.RosterStatusCode = RosterStatusCode 
+exports.RosterStatusCode = RosterStatusCode
