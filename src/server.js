@@ -6,6 +6,7 @@ var bodyParser = require('body-parser')
 
 var app = express()
 var roster = require('./roster')
+var store = require('./store')
 
 var PORT = 8081
 
@@ -55,6 +56,20 @@ app.post('/card_status/', function(req, res){
       }
     }
   )
+})
+
+// technically this should be a POST
+app.get('/league/new', function (req, res) {
+  store.insertLeague(function (leagueId) {
+    res.redirect("/league/" + leagueId)
+  })
+})
+
+var leagueTemplate = pug.compileFile("pug/leagueSetup.pug")
+app.get('/league/:leagueId', function(req, res) {
+  var league = league.getLeagueById(req.params.leagueId, function (league) {
+    res.send(leagueTemplate(league))
+  }
 })
 
 // Console will print the message

@@ -1,4 +1,5 @@
 var fs = require("fs")
+var debug = require("debug")("fml:store")
 var file = "./test.db"
 
 var exists = fs.existsSync(file)
@@ -42,11 +43,28 @@ AND t1.status_code in (0,1)
     { $member_id: memberId },
     function (err, rows){
       if (err){
-        console.log(err)
+        debug(err)
       }
       callback(rows)
     }
   )
+}
+
+/** Inserts a new league. The callback will be called with the ID of the newly inserted league. */
+function insertLeague(callback) {
+  var insertQuery = `
+INSERT INTO league (name)
+VALUES ('')
+`
+  var res = db.get(insertQuery,
+  function (err, row) {
+    if (err) {
+      debug(err)
+    }
+    if (callback) {
+      callback(this.lastID)
+    }
+  })
 }
 
 function initialize() {
@@ -108,20 +126,20 @@ CREATE TABLE waiver (
     }
 
     db.each("SELECT * FROM user", function(err, row) {
-      console.log(row)
+      debug(row)
     })
     db.each("SELECT * FROM league", function(err, row) {
-      console.log(row)
+      debug(row)
     })
     db.each("SELECT * FROM member", function(err, row) {
-      console.log(row)
+      debug(row)
     })
   })
   // hmmmmmm
   // db.close()
 }
 initialize() // run on module load
-loadRosterByMemberId(1, console.log)
+loadRosterByMemberId(1, debug)
 
 exports.insertCardStatus = insertCardStatus
 exports.loadRosterByMemberId = loadRosterByMemberId
