@@ -1,5 +1,4 @@
 var test = require('tape')
-var debug = require('debug')('fml:tests')
 var fs = require('fs')
 
 var dbFilePath = 'unitTests.db'
