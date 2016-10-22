@@ -4,7 +4,7 @@
   "description": "Fantasy Magic League",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tape test/*.js | faucet"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,7 @@
     "eslint": "^3.8.1",
     "eslint-config-standard": "^6.2.0",
     "eslint-plugin-promise": "^3.3.0",
-    "eslint-plugin-standard": "^2.0.1"
+    "eslint-plugin-standard": "^2.0.1",
+    "tape": "^4.6.2"
   }
 }
