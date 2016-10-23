@@ -4,7 +4,8 @@
   "description": "Fantasy Magic League",
   "main": "index.js",
   "scripts": {
-    "test": "tape test/*.js | faucet"
+    "test": "tape test/*.js | faucet",
+    "autotest": "tape-watch test/**/*.js -p faucet"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,10 @@
     "eslint-config-standard": "^6.2.0",
     "eslint-plugin-promise": "^3.3.0",
     "eslint-plugin-standard": "^2.0.1",
-    "tape": "^4.6.2"
+    "faucet": "^0.0.1",
+    "proxyquire": "^1.7.10",
+    "tape": "^4.6.2",
+    "tape-watch": "^2.2.3",
+    "tmp": "^0.0.29"
   }
 }

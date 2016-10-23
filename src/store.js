@@ -67,6 +67,21 @@ VALUES ('')
   })
   }
 
+  /** Load a league given its ID. callback will be invoked with the league. */
+  function loadLeagueById (leagueId, callback) {
+    var loadQuery = `
+SELECT id,name
+FROM league
+WHERE id = $leagueId    
+    `
+    db.get(loadQuery, {$leagueId: leagueId}, (err, row) => {
+      if (err) {
+        debug(err)
+      }
+      callback(row)
+    })
+  }
+
   function initialize () {
     db.serialize(function () {
       if (!exists) {
@@ -141,10 +156,11 @@ CREATE TABLE waiver (
   initialize() // run on module load
   loadRosterByMemberId(1, debug)
 
-  var module = {}
-  module.insertCardStatus = insertCardStatus
-  module.loadRosterByMemberId = loadRosterByMemberId
-  module.insertLeague = insertLeague
-  module.close = (cb) => { db.close(cb) }
-  return module
+  return {
+    insertCardStatus: insertCardStatus,
+    loadRosterByMemberId: loadRosterByMemberId,
+    insertLeague: insertLeague,
+    loadLeagueById: loadLeagueById,
+    close: cb => db.close(cb)
+  }
 }
