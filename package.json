@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "tape test/*.js | faucet",
-    "autotest": "tape-watch test/**/*.js -p faucet"
+    "autotest": "tape-watch test/**/*.js -p faucet",
+    "start": "script/dev_server.sh"
   },
   "repository": {
     "type": "git",

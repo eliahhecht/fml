@@ -7,7 +7,7 @@ var path = require('path')
 
 var app = express()
 var roster = require('./roster')
-var store = require('./store')
+var store = require('./store')()
 
 var PORT = 8081
 
@@ -60,7 +60,7 @@ app.post('/card_status/', function (req, res) {
 })
 
 // technically this should be a POST
-app.get('/league/new', function (req, res) {
+app.post('/league', function (req, res) {
   store.insertLeague(function (leagueId) {
     res.redirect('/league/' + leagueId)
   })
