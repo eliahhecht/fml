@@ -2,7 +2,7 @@ var _ = require('lodash')
 var debug = require('debug')('fml:roster')
 
 var mtgjson = require('./mtgjson')
-var store = require('./store')
+var store = require('./store')()
 var constant = require('./constant')
 
 var loadCardsOwnedByPlayer = function (memberId, callback) {
