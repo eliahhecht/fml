@@ -156,11 +156,16 @@ CREATE TABLE waiver (
   initialize() // run on module load
   loadRosterByMemberId(1, debug)
 
+  function addPlayerToLeague (userName, cb) {
+    cb(1)
+  }
+
   return {
+    addPlayerToLeague: addPlayerToLeague,
     insertCardStatus: insertCardStatus,
-    loadRosterByMemberId: loadRosterByMemberId,
     insertLeague: insertLeague,
     loadLeagueById: loadLeagueById,
+    loadRosterByMemberId: loadRosterByMemberId,
     close: cb => db.close(cb)
   }
 }

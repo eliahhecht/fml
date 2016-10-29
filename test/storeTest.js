@@ -17,9 +17,24 @@ test('load league works', t => {
     var leagueId = id
     store.loadLeagueById(leagueId, (league) => {
       t.equal(leagueId, league.id)
+      t.equal('', league.name) // league name is empty string by default
       t.end()
     })
   })
+})
+
+test('add player to league', t => {
+  store.insertLeague(leagueId => {
+    store.addPlayerToLeague('test_player', (leagueId, memberId) => {
+      t.assert(memberId)
+      store.loadPlayersForLeague()
+      t.end()
+    })
+  })
+})
+
+test('load players for league', t => {
+  t.end()
 })
 
 test.onFinish(() => {
