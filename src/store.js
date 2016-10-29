@@ -72,13 +72,27 @@ VALUES ('')
     var loadQuery = `
 SELECT id,name
 FROM league
-WHERE id = $leagueId    
+WHERE id = $leagueId
     `
     db.get(loadQuery, {$leagueId: leagueId}, (err, row) => {
       if (err) {
         debug(err)
       }
       callback(row)
+    })
+  }
+
+  function eventExists (eventId, callback) {
+    var loadQuery = `
+SELECT 1
+FROM event
+WHERE id = $eventId
+    `
+    db.get(loadQuery, {$eventId: eventId}, (err, row) => {
+      if (err) {
+        debug(err)
+      }
+      callback(row != null)
     })
   }
 
@@ -122,11 +136,25 @@ CREATE TABLE waiver (
   processed_at TIMESTAMP,
   FOREIGN KEY(member_id) REFERENCES member(id)
 )`
+        var createEvent = `
+CREATE TABLE event (
+  id INTEGER,
+  timestamp TIMESTAMP
+)`
+        var createEventCard = `
+CREATE TABLE event_card (
+  event_id INTEGER,
+  card_name CHAR(50),
+  quantity INTEGER,
+  FOREIGN KEY(event_id) REFERENCES event(id)
+)`
         db.run(createUser)
         db.run(createLeague)
         db.run(createMember)
         db.run(createCardStatus)
         db.run(createWaiver)
+        db.run(createEvent)
+        db.run(createEventCard)
 
         db.run("INSERT INTO user (email) VALUES ('jtms@aol.com')")
         db.run("INSERT INTO league (name) VALUES ('Jacetice League')")
@@ -166,6 +194,7 @@ CREATE TABLE waiver (
     insertLeague: insertLeague,
     loadLeagueById: loadLeagueById,
     loadRosterByMemberId: loadRosterByMemberId,
+    eventExists: eventExists,
     close: cb => db.close(cb)
   }
 }

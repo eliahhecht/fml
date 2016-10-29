@@ -8,7 +8,7 @@ var path = require('path')
 var app = express()
 var roster = require('./roster')
 var store = require('./store')
-var tournament = require('./tournament')
+var event = require('./event')
 
 var PORT = 8081
 
@@ -75,8 +75,8 @@ app.get('/league/:leagueId', function (req, res) {
 })
 
 app.get('/task/scrape', function (req, res) {
-  tournament.downloadDeckList(281503)
-  res.send('wip')
+  event.scrapeEvents()
+  res.send('ok')
 })
 
 // Console will print the message
