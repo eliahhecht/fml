@@ -1,4 +1,3 @@
-var fs = require('fs')
 var mtg = require('mtgtop8')
 
 var store = require('./store')()
@@ -7,6 +6,9 @@ function scrapeEvents () {
   mtg.standardEvents(1, function (err, events) {
     if (err) return console.error(err)
 
+    console.log('events fetched')
+
+    events = [ events[0] ]
     // Get player results and decks about a specific event
     events.forEach((eventInfo) => {
       var eventId = eventInfo.id
@@ -17,11 +19,10 @@ function scrapeEvents () {
         }
         mtg.event(eventId, (err, event) => {
           if (err) return console.error(err)
-
-          console.log(event)
-
-          // todo replace with db write
-          fs.writeFile(`${eventId}.txt`, JSON.stringify(event))
+          store.insertEvent(eventId, event.date, () => {
+            console.log(`done inserting ${eventId}`)
+            // todo store.insertEventCard
+          })
         })
       })
     })

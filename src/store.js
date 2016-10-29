@@ -96,6 +96,36 @@ WHERE id = $eventId
     })
   }
 
+  function insertEvent (eventId, timestamp, callback) {
+    var insertQuery = `
+INSERT INTO event (id, timestamp)
+VALUES ($eventId, $timestamp)
+`
+    db.run(insertQuery,
+      {$eventId: eventId, $timestamp: timestamp},
+      function (err, row) {
+        if (err) {
+          debug(err)
+        }
+        callback()
+      })
+  }
+
+  function insertEventCard (eventId, cardName, count, callback) {
+    var insertQuery = `
+INSERT INTO event_card (event_id, card_name, count)
+VALUES ($eventId, $cardName, $count)
+`
+    db.run(insertQuery,
+      {$eventId: eventId, $cardName: cardName, $count: count},
+      function (err, row) {
+        if (err) {
+          debug(err)
+        }
+        callback()
+      })
+  }
+
   function initialize () {
     db.serialize(function () {
       if (!exists) {
@@ -145,7 +175,7 @@ CREATE TABLE event (
 CREATE TABLE event_card (
   event_id INTEGER,
   card_name CHAR(50),
-  quantity INTEGER,
+  count INTEGER,
   FOREIGN KEY(event_id) REFERENCES event(id)
 )`
         db.run(createUser)
@@ -248,6 +278,8 @@ VALUES ('email')
     loadMembersForLeague: loadMembersForLeague,
     insertUser: insertUser,
     eventExists: eventExists,
+    insertEvent: insertEvent,
+    insertEventCard: insertEventCard,
     close: cb => db.close(cb)
   }
 }
