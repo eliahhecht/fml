@@ -1,6 +1,7 @@
 var test = require('tape')
 var fs = require('fs')
 var tmp = require('tmp')
+var _ = require('lodash')
 
 var dbFilePath = tmp.tmpNameSync()
 var store = require('../src/store')(dbFilePath)
@@ -24,16 +25,23 @@ test('load league works', t => {
 })
 
 test('add player to league', t => {
-  store.insertLeague(leagueId => {
-    store.addPlayerToLeague('test_player', (leagueId, memberId) => {
-      t.assert(memberId)
-      store.loadPlayersForLeague()
-      t.end()
+  var userName = 'test@example.com'
+  store.insertUser(userName, userId => {
+    store.insertLeague(leagueId => {
+      var userId = 1
+      store.addPlayerToLeague(userId, leagueId, (memberId) => {
+        t.assert(memberId)
+        store.loadMembersForLeague(leagueId, playerIds => {
+          t.ok(_(playerIds).includes(userId))
+        })
+        t.end()
+      })
     })
   })
 })
 
 test('load players for league', t => {
+  t.ok(true)
   t.end()
 })
 

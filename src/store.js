@@ -57,14 +57,14 @@ INSERT INTO league (name)
 VALUES ('')
 `
     db.run(insertQuery,
-  function (err, row) {
-    if (err) {
-      debug(err)
-    }
-    if (callback) {
-      callback(this.lastID)
-    }
-  })
+    function (err, row) {
+      if (err) {
+        debug(err)
+      }
+      if (callback) {
+        callback(this.lastID)
+      }
+    })
   }
 
   /** Load a league given its ID. callback will be invoked with the league. */
@@ -156,8 +156,59 @@ CREATE TABLE waiver (
   initialize() // run on module load
   loadRosterByMemberId(1, debug)
 
-  function addPlayerToLeague (userName, cb) {
+  /** Add the user to the specified league. CB will be invoked with the player's new memberId. */
+  function addPlayerToLeague (userId, leagueId, cb) {
+    var insertMember = `
+    INSERT INTO member (user_id, league_id)
+    VALUES ($userId, $leagueId)
+    `
+
+    db.run(insertMember,
+    {$userId: userId, $leagueId: leagueId},
+    function (err, row) {
+      if (err) {
+        debug(err)
+      }
+      if (cb) {
+        cb(this.lastID)
+      }
+    })
     cb(1)
+  }
+
+  /** Load all members for the given league. CB will be invoked with the member objects. */
+  function loadMembersForLeague (leagueId, cb) {
+    var loadQuery = `
+    SELECT user_id, member_ud
+    FROM member
+    WHERE league_id = $leagueId
+    `
+    db.all(loadQuery,
+    {$leagueId: leagueId},
+    function (err, rows) {
+      if (err) {
+        debug(err)
+      }
+      cb(rows)
+    })
+  }
+
+  /** Insert the user. CB will be invoked with the user's new userId. */
+  function insertUser (email, cb) {
+    var insertQuery = `
+INSERT INTO user (email)
+VALUES ('email')
+`
+    db.run(insertQuery,
+      {$userName: email},
+      function (err, row) {
+        if (err) {
+          debug(err)
+        }
+        if (cb) {
+          cb(this.lastID)
+        }
+      })
   }
 
   return {
@@ -166,6 +217,8 @@ CREATE TABLE waiver (
     insertLeague: insertLeague,
     loadLeagueById: loadLeagueById,
     loadRosterByMemberId: loadRosterByMemberId,
-    close: cb => db.close(cb)
+    close: cb => db.close(cb),
+    loadMembersForLeague: loadMembersForLeague,
+    insertUser: insertUser
   }
 }
